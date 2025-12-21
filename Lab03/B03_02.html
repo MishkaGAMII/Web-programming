@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>B03 02</title>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="row g-2 mt-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="n1">Post #1</label>
+        <input class="form-control" type="number" id="n1" value="1" min="1">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="n2">Post #2</label>
+        <input class="form-control" type="number" id="n2" value="2" min="1">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label" for="n3">Post #3</label>
+        <input class="form-control" type="number" id="n3" value="3" min="1">
+      </div>
+    </div>
+
+    <br>
+
+    <button class="btn btn-success" id="load"><i class="fa-solid fa-download"></i> Load</button>
+    <div class="mt-3" id="res"></div>
+  </div>
+
+  <script>
+    function delay(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function getPost(num) {
+      const url = "https://jsonplaceholder.typicode.com/posts/" + num;
+      const r = await fetch(url);
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      return await r.json();
+    }
+
+    async function loadSequential() {
+      $("#res").html("Loading...");
+      const nums = [
+        Number($("#n1").val()),
+        Number($("#n2").val()),
+        Number($("#n3").val())
+      ];
+
+      const out = $("<ol></ol>");
+      try {
+        for (const n of nums) {
+          await delay(500);
+          const p = await getPost(n);
+          out.append($("<li></li>").text("#" + n + ": " + p.title));
+        }
+        $("#res").html(out);
+      } catch (e) {
+        $("#res").text("Error: " + e.message);
+      }
+    }
+
+    function main() {
+      $("#load").on("click", loadSequential);
+    }
+
+    main();
+  </script>
+</body>
+</html>

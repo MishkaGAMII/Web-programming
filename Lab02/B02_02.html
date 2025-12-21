@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>B02 02</title>
+</head>
+<body>
+  <input id="text" type="text">
+  <button id="btn">Save</button>
+  <div id="res"></div>
+
+  <script>
+    const KEY = "message";
+
+    function show() {
+      document.getElementById("res").textContent = sessionStorage.getItem(KEY) ?? "";
+    }
+
+    document.getElementById("btn").addEventListener("click", () => {
+      const val = document.getElementById("text").value;
+      sessionStorage.setItem(KEY, val);
+      show();
+    });
+
+    show();
+  </script>
+</body>
+</html>

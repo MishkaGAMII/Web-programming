@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<script>
+Object.prototype.size = function() {
+  let n = 0;
+  for (const k of Object.keys(this)) {
+    if (typeof this[k] !== "function") n++;
+  }
+  return n;
+}
+
+let a = {x: 10, y: 20, ok: true, f: function(){}};
+let b = new Object();
+b.attr = 125;
+b.asd = true;
+b.fn = () => 123;
+
+function Test() {
+  this.p1 = 1;
+  this.p2 = "qwe";
+  this.m = function() {};
+}
+let c = new Test();
+
+console.log(a.size());
+console.log(b.size());
+console.log(c.size());
+</script>
+</body>
+</html>

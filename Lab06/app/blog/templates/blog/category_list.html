@@ -1,0 +1,22 @@
+{% extends "blog/base.html" %}
+{% block title %}Categories{% endblock %}
+{% block content %}
+<h2 class="mb-3">Категорії</h2>
+{% if categories %}
+  <div class="list-group">
+    {% for c in categories %}
+      <div class="list-group-item">
+        <div class="fw-bold">
+          {% if c.icon %}<i class="{{ c.icon }}"></i>{% endif %}
+          {{ c.title }}
+        </div>
+        {% if c.description %}
+          <div class="text-muted small">{{ c.description }}</div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-warning">Категорій немає.</div>
+{% endif %}
+{% endblock %}

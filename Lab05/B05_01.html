@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>B05_01</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 16px; }
+    h2 { margin: 18px 0 8px; }
+    pre { background: #0b1020; color: #d7e1ff; padding: 12px; border-radius: 10px; overflow: auto; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .note { background:#fff3cd; padding:10px; border-radius:10px; border:1px solid #ffe69c; }
+  </style>
+</head>
+<body>
+  <h1>B05_01 — Docker (MySQL + phpMyAdmin + Python)</h1>
+
+  <div class="note">
+    Створи поруч з цим файлом папку, наприклад <b>T05_Docker</b>, і в ній розклади файли:
+    <b>docker-compose.yml</b>, <b>.env</b>, <b>Dockerfile</b>, <b>main.py</b>.
+    Потім: <code>docker compose up --build</code>.
+  </div>
+
+  <h2>.env</h2>
+  <pre><code>MYSQL_DATABASE=mydb
+MYSQL_USER=admin
+MYSQL_PASSWORD=adminpass
+MYSQL_ROOT_PASSWORD=rootpass
+
+DB_HOST=mysql
+DB_NAME=mydb
+DB_USER=admin
+DB_PASS=adminpass</code></pre>
+
+  <h2>docker-compose.yml</h2>
+  <pre><code>services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+
+  simple_app:
+    build: .
+    container_name: simple_app
+    restart: "no"
+    env_file: .env
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:</code></pre>
+
+  <h2>Dockerfile</h2>
+  <pre><code>FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN pip install --no-cache-dir mysql-connector-python
+
+COPY main.py /app/main.py
+
+CMD ["python", "main.py"]</code></pre>
+
+  <h2>main.py</h2>
+  <pre><code>import os
+import time
+import random
+import mysql.connector
+
+DB_HOST = os.getenv("DB_HOST", "mysql")
+DB_NAME = os.getenv("DB_NAME", "mydb")
+DB_USER = os.getenv("DB_USER", "admin")
+DB_PASS = os.getenv("DB_PASS", "adminpass")
+
+def connect():
+  return mysql.connector.connect(
+    host=DB_HOST,
+    user=DB_USER,
+    password=DB_PASS,
+    database=DB_NAME
+  )
+
+def main():
+  for _ in range(30):
+    try:
+      conn = connect()
+      break
+    except Exception:
+      time.sleep(1)
+  else:
+    raise RuntimeError("DB connection failed")
+
+  cur = conn.cursor()
+
+  cur.execute("""
+    CREATE TABLE IF NOT EXISTS test_data (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      value INT
+    )
+  """)
+
+  for _ in range(2):
+    v = random.randint(1, 100)
+    cur.execute("INSERT INTO test_data (value) VALUES (%s)", (v,))
+
+  conn.commit()
+
+  cur.execute("SELECT id, value FROM test_data ORDER BY id")
+  rows = cur.fetchall()
+
+  print("=== Дані в таблиці test_data ===")
+  for r in rows:
+    print(tuple(r))
+
+  cur.close()
+  conn.close()
+
+if __name__ == "__main__":
+  main()</code></pre>
+
+</body>
+</html>
