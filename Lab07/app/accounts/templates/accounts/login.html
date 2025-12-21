@@ -1,0 +1,20 @@
+{% extends "blog/base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<h2 class="mb-3">Login</h2>
+<form method="post" class="row g-2">
+  {% csrf_token %}
+  <div class="col-12 col-md-6">
+    <label class="form-label">Username</label>
+    {{ form.username }}
+  </div>
+  <div class="col-12 col-md-6">
+    <label class="form-label">Password</label>
+    {{ form.password }}
+  </div>
+  <div class="col-12">
+    <button class="btn btn-primary">Log in</button>
+    <a class="btn btn-link" href="/accounts/register/">Register</a>
+  </div>
+</form>
+{% endblock %}

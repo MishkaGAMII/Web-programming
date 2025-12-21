@@ -1,0 +1,22 @@
+{% extends "blog/base.html" %}
+{% block title %}Articles{% endblock %}
+{% block content %}
+<h2 class="mb-3">Усі опубліковані статті</h2>
+{% if articles %}
+  <div class="list-group">
+    {% for a in articles %}
+      <a class="list-group-item list-group-item-action" href="/blog/articles/{{ a.id }}/">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="fw-bold">{{ a.title }}</div>
+            <div class="small text-muted">by {{ a.author }}</div>
+          </div>
+          <div class="small text-muted">{{ a.publication_date }}</div>
+        </div>
+      </a>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-warning">Список порожній.</div>
+{% endif %}
+{% endblock %}

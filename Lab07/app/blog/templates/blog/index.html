@@ -1,0 +1,26 @@
+{% extends "blog/base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h2 class="mb-3">Останні 3 статті</h2>
+{% if articles %}
+  <div class="row g-3">
+    {% for a in articles %}
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="card h-100">
+          {% if a.image %}
+            <img src="{{ a.image }}" class="card-img-top" alt="img">
+          {% endif %}
+          <div class="card-body">
+            <div class="small text-muted">{{ a.publication_date }}</div>
+            <h5 class="card-title">{{ a.title }}</h5>
+            <div class="small">by {{ a.author }}</div>
+            <a class="btn btn-primary mt-2" href="/blog/articles/{{ a.id }}/">Read</a>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-warning">Немає опублікованих статей.</div>
+{% endif %}
+{% endblock %}
